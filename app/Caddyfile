@@ -1,0 +1,13 @@
+jmproyects.online {
+    # Redirigir llamadas de API al backend
+    handle /api/activos/* {
+        uri strip_prefix /api/activos
+        rewrite * /api{path}
+        reverse_proxy backend-activos:4002
+    }
+
+    # Redirigir el resto del tráfico al frontend (Nginx)
+    handle {
+        reverse_proxy web-activos:80
+    }
+}

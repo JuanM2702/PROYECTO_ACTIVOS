@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # ═══════════════════════════════════════════════════════════
+  # Base de Datos PostgreSQL (Database-per-Service Pattern)
+  # ═══════════════════════════════════════════════════════════
+  db-activos:
+    image: postgres:15-alpine
+    container_name: db-activos
+    restart: always
+    shm_size: 128mb
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    expose:
+      - "5432"
+    volumes:
+      - activos_pg_data:/var/lib/postgresql/data
+      - ./app/db-init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - microservices_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ═══════════════════════════════════════════════════════════
+  # Backend API (Node.js + Express)
+  # ═══════════════════════════════════════════════════════════
+  servicio-activos:
+    build: ./app/backend
+    container_name: servicio-activos
+    restart: always
+    depends_on:
+      db-activos:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - API_URL=${API_URL}
+    expose:
+      - "4002"
+    networks:
+      - microservices_net
+
+  # ═══════════════════════════════════════════════════════════
+  # Frontend Web (React + Vite → Nginx Static)
+  # ═══════════════════════════════════════════════════════════
+  servicio-activos-web:
+    build: ./app/frontend
+    container_name: servicio-activos-web
+    restart: always
+    depends_on:
+      - servicio-activos
+    expose:
+      - "80"
+    networks:
+      - microservices_net
+
+volumes:
+  activos_pg_data:
+
+networks:
+  microservices_net:
+    external: true

@@ -1,0 +1,24 @@
+# Entornos
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+dist/
+build/
+
+# Docker y Bases de datos
+activos_pg_data/
+caddy_data/
+caddy_config/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

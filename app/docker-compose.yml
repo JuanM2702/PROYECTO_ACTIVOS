@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Base de Datos PostgreSQL
+  db-activos:
+    image: postgres:15-alpine
+    container_name: activos_db
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: activos
+      POSTGRES_PASSWORD: activos_dev_2026
+      POSTGRES_DB: activos_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - activos_pg_data:/var/lib/postgresql/data
+      - ./db-init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U activos -d activos_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Backend Node.js (Express + pg client)
+  backend-activos:
+    build:
+      context: ./backend
+    container_name: activos_backend
+    restart: always
+    depends_on:
+      db-activos:
+        condition: service_healthy
+    environment:
+      PORT: 4002
+      DB_HOST: db-activos
+      DB_PORT: 5432
+      DB_USER: activos
+      DB_PASSWORD: 1006778749Jd.
+      DB_NAME: activos_db
+      JWT_SECRET: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4NDcyLCJyb2xlIjoiYWRtaW4iLCJhdWQiOiJodHRwczovL2FwaS5taWRvbWluaW8uY29tIn0.8bL7W0WaCX_FW4APRO2InJRGiGT3LYSKe05W21OQOH0
+    ports:
+      - "4002:4002"
+    volumes:
+      - ./backend/src:/app/src
+
+  # Panel Web React (Vite)
+  web-activos:
+    build:
+      context: ./frontend
+    container_name: activos_web
+    restart: always
+    depends_on:
+      - backend-activos
+    environment:
+      - VITE_API_URL=http://2.25.212.78:4002
+    ports:
+      - "5175:5175"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+
+volumes:
+  activos_pg_data:
