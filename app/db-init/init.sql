@@ -1,68 +1,145 @@
 -- ============================================================================
 -- SISTEMA DE CONTROL DE ACTIVOS ("ACTIVOS"): Inicialización de Base de Datos
+-- Esquema Normalizado Local para Desarrollo (Migrado de SGCAF MySQL) - ESPAÑOL
 -- ============================================================================
 
--- 1. TABLA: USUARIOS (Preparada para RBAC e integración futura de Directorio Activo)
-CREATE TABLE IF NOT EXISTS users (
+-- ==========================================
+-- CATÁLOGOS Y TABLAS DE DIMENSIÓN
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS empresas (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS cargos (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS marcas (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS tipos_recurso (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS estados_activo (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(50) UNIQUE NOT NULL
+);
+
+-- ==========================================
+-- ESTRUCTURA GEOGRÁFICA / UBICACIÓN
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS zonas (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS oficinas (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    zona_id INTEGER REFERENCES zonas(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS puntos (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    oficina_id INTEGER REFERENCES oficinas(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS areas (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    punto_id INTEGER REFERENCES puntos(id) ON DELETE CASCADE
+);
+
+-- ==========================================
+-- ENTIDADES PRINCIPALES
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS usuarios (
     id SERIAL PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    full_name VARCHAR(150) NOT NULL,
+    nombre_completo VARCHAR(150) NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
-    role VARCHAR(30) DEFAULT 'VIEWER', -- ADMIN, OPERATOR, VIEWER
-    is_active BOOLEAN DEFAULT true,
-    allowed_modules JSONB DEFAULT '["dashboard", "inventory", "movements", "acceptances"]'::jsonb,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    rol VARCHAR(30) DEFAULT 'VIEWER', -- ADMIN, OPERATOR, VIEWER, etc.
+    cargo_id INTEGER REFERENCES cargos(id) ON DELETE SET NULL,
+    empresa_id INTEGER REFERENCES empresas(id) ON DELETE SET NULL,
+    es_activo BOOLEAN DEFAULT true,
+    modulos_permitidos JSONB DEFAULT '["dashboard", "inventory", "movements", "acceptances"]'::jsonb,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. TABLA: ACTIVOS
-CREATE TABLE IF NOT EXISTS assets (
+CREATE TABLE IF NOT EXISTS activos (
     id SERIAL PRIMARY KEY,
-    code VARCHAR(50) UNIQUE NOT NULL, -- Ej: "ACT-0001"
-    name VARCHAR(150) NOT NULL,
-    description TEXT,
-    category VARCHAR(50) NOT NULL,    -- Ej: "Hardware", "Vehículos", "Mobiliario", "Software"
-    status VARCHAR(50) NOT NULL,      -- Ej: "Pendiente Aceptación", "Activo", "En Mantenimiento", "Baja"
-    location VARCHAR(150) NOT NULL,   -- Ubicación física
-    value NUMERIC(12, 2) NOT NULL,    -- Valor monetario
-    purchase_date DATE,
-    assigned_to INTEGER REFERENCES users(id) ON DELETE SET NULL,
-    photo_data TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    codigo VARCHAR(50) UNIQUE NOT NULL, -- Ej: "ACT-0001"
+    serial VARCHAR(100),
+    modelo VARCHAR(100),
+    psl VARCHAR(100),
+    
+    tipo_recurso_id INTEGER REFERENCES tipos_recurso(id) ON DELETE RESTRICT,
+    marca_id INTEGER REFERENCES marcas(id) ON DELETE SET NULL,
+    estado_id INTEGER REFERENCES estados_activo(id) ON DELETE RESTRICT,
+    empresa_id INTEGER REFERENCES empresas(id) ON DELETE RESTRICT,
+    area_id INTEGER REFERENCES areas(id) ON DELETE RESTRICT,
+    asignado_a INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+    
+    estatus VARCHAR(50) NOT NULL DEFAULT 'ACTIVO', -- Ej: "ACTIVO", "BAJA", "PENDIENTE"
+    valor NUMERIC(12, 2) DEFAULT 0.00,
+    fecha_compra DATE,
+    foto_data TEXT,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. TABLA: MOVIMIENTOS DE ACTIVOS (Registro histórico/Auditoría)
-CREATE TABLE IF NOT EXISTS asset_movements (
+-- ==========================================
+-- TABLAS TRANSACCIONALES E HISTÓRICOS
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS movimientos_activo (
     id SERIAL PRIMARY KEY,
-    asset_id INTEGER REFERENCES assets(id) ON DELETE CASCADE,
-    origin_location VARCHAR(150),
-    destination_location VARCHAR(150) NOT NULL,
-    origin_assignee_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-    destination_assignee_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-    movement_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    reason TEXT NOT NULL,
-    performed_by INTEGER REFERENCES users(id) ON DELETE SET NULL
+    activo_id INTEGER REFERENCES activos(id) ON DELETE CASCADE,
+    area_origen_id INTEGER REFERENCES areas(id) ON DELETE SET NULL,
+    area_destino_id INTEGER REFERENCES areas(id) ON DELETE RESTRICT,
+    usuario_origen_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+    usuario_destino_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+    fecha_movimiento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    motivo TEXT NOT NULL,
+    estatus VARCHAR(50) DEFAULT 'PENDIENTE', -- PENDIENTE, VALIDADO, CANCELADO
+    realizado_por INTEGER REFERENCES usuarios(id) ON DELETE SET NULL
 );
 
--- 4. TABLA: ACEPTACIONES DE ACTIVOS (Flujo de firmas de entrega limpia)
-CREATE TABLE IF NOT EXISTS asset_acceptances (
+CREATE TABLE IF NOT EXISTS mantenimientos (
     id SERIAL PRIMARY KEY,
-    asset_id INTEGER REFERENCES assets(id) ON DELETE CASCADE,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    acceptance_date TIMESTAMP,
-    status VARCHAR(30) DEFAULT 'PENDIENTE', -- PENDIENTE, ACEPTADO, RECHAZADO
-    comments TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    activo_id INTEGER REFERENCES activos(id) ON DELETE CASCADE,
+    fecha_mantenimiento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_tecnico_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+    tipo_mantenimiento VARCHAR(50) NOT NULL, -- PREVENTIVO, CORRECTIVO, PREDICTIVO
+    hallazgos TEXT,
+    observaciones TEXT
+);
+
+CREATE TABLE IF NOT EXISTS aceptaciones_activo (
+    id SERIAL PRIMARY KEY,
+    activo_id INTEGER REFERENCES activos(id) ON DELETE CASCADE,
+    usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+    fecha_aceptacion TIMESTAMP,
+    estatus VARCHAR(30) DEFAULT 'PENDIENTE', -- PENDIENTE, ACEPTADO, RECHAZADO
+    comentarios TEXT,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ─── ÍNDICES PARA OPTIMIZAR BÚSQUEDAS ───────────────────────────────────────
-CREATE INDEX IF NOT EXISTS idx_assets_code ON assets(code);
-CREATE INDEX IF NOT EXISTS idx_assets_assigned_to ON assets(assigned_to);
-CREATE INDEX IF NOT EXISTS idx_movements_asset ON asset_movements(asset_id);
-CREATE INDEX IF NOT EXISTS idx_acceptances_user ON asset_acceptances(user_id, status);
-
--- ─── INSERTAR ALGUNOS ACTIVOS DE PRUEBA INICIALES ─────────────────────────────
--- Nota: Los usuarios se crearán dinámicamente y de forma segura en la inicialización
--- del backend (para aplicar hashing con bcrypt). Una vez que existan los usuarios,
--- el backend asociará estos activos si la tabla está vacía.
+CREATE INDEX IF NOT EXISTS idx_activos_codigo ON activos(codigo);
+CREATE INDEX IF NOT EXISTS idx_activos_asignado_a ON activos(asignado_a);
+CREATE INDEX IF NOT EXISTS idx_activos_area ON activos(area_id);
+CREATE INDEX IF NOT EXISTS idx_movimientos_activo ON movimientos_activo(activo_id);
+CREATE INDEX IF NOT EXISTS idx_mantenimientos_activo ON mantenimientos(activo_id);
+CREATE INDEX IF NOT EXISTS idx_aceptaciones_usuario ON aceptaciones_activo(usuario_id, estatus);

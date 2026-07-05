@@ -7,17 +7,19 @@ services:
     container_name: activos_db
     restart: always
     shm_size: 128mb
+    env_file:
+      - ../.env
     environment:
-      POSTGRES_USER: activos
-      POSTGRES_PASSWORD: activos_dev_2026
-      POSTGRES_DB: activos_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5435:5432"
     volumes:
       - activos_pg_data:/var/lib/postgresql/data
       - ./db-init/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U activos -d activos_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -31,14 +33,16 @@ services:
     depends_on:
       db-activos:
         condition: service_healthy
+    env_file:
+      - ../.env
     environment:
-      PORT: 4002
-      DB_HOST: db-activos
-      DB_PORT: 5432
-      DB_USER: activos
-      DB_PASSWORD: 1006778749Jd.
-      DB_NAME: activos_db
-      JWT_SECRET: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4NDcyLCJyb2xlIjoiYWRtaW4iLCJhdWQiOiJodHRwczovL2FwaS5taWRvbWluaW8uY29tIn0.8bL7W0WaCX_FW4APRO2InJRGiGT3LYSKe05W21OQOH0
+      - PORT=${PORT}
+      - DB_HOST=db-activos
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
     ports:
       - "4002:4002"
     volumes:

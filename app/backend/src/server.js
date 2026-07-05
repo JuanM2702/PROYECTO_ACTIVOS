@@ -48,11 +48,33 @@ app.use((err, req, res, next) => {
 // Función para sembrar la base de datos si está vacía
 async function seedDatabaseIfEmpty() {
   try {
-    const userCountResult = await db.query('SELECT COUNT(*) FROM users');
+    const userCountResult = await db.query('SELECT COUNT(*) FROM usuarios');
     const count = parseInt(userCountResult.rows[0].count, 10);
     
     if (count === 0) {
-      console.log('🌱 [SIEMBRA] Base de datos vacía. Creando usuarios con contraseñas seguras...');
+      console.log('🌱 [SIEMBRA] Base de datos vacía. Sembrando catálogos y ubicaciones...');
+
+      // Sembrar catálogos esenciales
+      const companyRes = await db.query("INSERT INTO empresas (nombre) VALUES ('SEAPTO S.A.') RETURNING id");
+      const jobRes = await db.query("INSERT INTO cargos (nombre) VALUES ('ADMINISTRADOR') RETURNING id");
+      const brandRes = await db.query("INSERT INTO marcas (nombre) VALUES ('HP') RETURNING id");
+      const resourceRes = await db.query("INSERT INTO tipos_recurso (nombre) VALUES ('TODO EN UNO') RETURNING id");
+      const conditionRes = await db.query("INSERT INTO estados_activo (nombre) VALUES ('NUEVO') RETURNING id");
+
+      const companyId = companyRes.rows[0].id;
+      const jobId = jobRes.rows[0].id;
+      const brandId = brandRes.rows[0].id;
+      const resourceTypeId = resourceRes.rows[0].id;
+      const conditionId = conditionRes.rows[0].id;
+
+      // Sembrar jerarquía de ubicaciones
+      const zoneRes = await db.query("INSERT INTO zonas (nombre) VALUES ('ZONA CENTRO') RETURNING id");
+      const officeRes = await db.query("INSERT INTO oficinas (nombre, zona_id) VALUES ('IBAGUE', $1) RETURNING id", [zoneRes.rows[0].id]);
+      const pointRes = await db.query("INSERT INTO puntos (nombre, oficina_id) VALUES ('OFICINA PRINCIPAL', $1) RETURNING id", [officeRes.rows[0].id]);
+      const areaRes = await db.query("INSERT INTO areas (nombre, punto_id) VALUES ('SISTEMAS', $1) RETURNING id", [pointRes.rows[0].id]);
+      const areaId = areaRes.rows[0].id;
+
+      console.log('🌱 [SIEMBRA] Creando usuarios con contraseñas seguras...');
       
       const usersToSeed = [
         {
@@ -61,20 +83,6 @@ async function seedDatabaseIfEmpty() {
           fullName: 'Administrador de Activos',
           role: 'ADMIN',
           password: process.env.ADMIN_PASSWORD || 'Admin_Inicial_2026!'
-        },
-        {
-          username: 'operator',
-          email: 'operator@activos.com',
-          fullName: 'Operador Técnico',
-          role: 'OPERATOR',
-          password: process.env.OPERATOR_PASSWORD || 'Operator_Inicial_2026!'
-        },
-        {
-          username: 'viewer',
-          email: 'viewer@activos.com',
-          fullName: 'Consultor Visual',
-          role: 'VIEWER',
-          password: process.env.VIEWER_PASSWORD || 'Viewer_Inicial_2026!'
         }
       ];
 
@@ -83,95 +91,30 @@ async function seedDatabaseIfEmpty() {
         const hash = await bcrypt.hash(u.password, salt);
         
         await db.query(
-          `INSERT INTO users (username, password_hash, full_name, email, role)
-           VALUES ($1, $2, $3, $4, $5)`,
-          [u.username, hash, u.fullName, u.email, u.role]
+          `INSERT INTO usuarios (username, password_hash, nombre_completo, email, rol, cargo_id, empresa_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+          [u.username, hash, u.fullName, u.email, u.role, jobId, companyId]
         );
-        console.log(`  - Creado usuario: ${u.username} [Rol: ${u.role}] (Contraseña omitida por seguridad)`);
+        console.log(`  - Creado usuario: ${u.username} [Rol: ${u.role}]`);
       }
 
-      // Obtener IDs de usuarios asignados
-      const adminResult = await db.query("SELECT id FROM users WHERE username = 'admin'");
-      const operatorResult = await db.query("SELECT id FROM users WHERE username = 'operator'");
+      const adminResult = await db.query("SELECT id FROM usuarios WHERE username = 'admin'");
       const adminId = adminResult.rows[0].id;
-      const operatorId = operatorResult.rows[0].id;
 
-      console.log('🌱 [SIEMBRA] Sembrando activos y actas de aceptación iniciales...');
-      const assetsToSeed = [
-        {
-          code: 'ACT-0001',
-          name: 'Servidor Dell PowerEdge R760',
-          desc: 'Servidor rack para procesamiento de datos de telemetría IoT',
-          cat: 'Hardware',
-          status: 'Activo',
-          loc: 'Sala de Servidores A',
-          val: 7800.00,
-          pdate: '2026-01-15',
-          userId: adminId
-        },
-        {
-          code: 'ACT-0002',
-          name: 'MacBook Pro M3 Max 16"',
-          desc: 'Estación de trabajo para desarrollo de firmware IoT',
-          cat: 'Hardware',
-          status: 'Activo',
-          loc: 'Oficina Central - Piso 3',
-          val: 3999.00,
-          pdate: '2026-02-10',
-          userId: operatorId
-        },
-        {
-          code: 'ACT-0003',
-          name: 'Licencia Red Hat Enterprise Linux',
-          desc: 'Suscripción anual corporativa para servidores de producción',
-          cat: 'Software',
-          status: 'Activo',
-          loc: 'Licenciamiento Digital',
-          val: 1800.00,
-          pdate: '2026-03-01',
-          userId: adminId
-        },
-        {
-          code: 'ACT-0004',
-          name: 'Aire Acondicionado Precision LG',
-          desc: 'Climatizador inteligente para centro de datos principal',
-          cat: 'Mobiliario',
-          status: 'Pendiente Aceptación',
-          loc: 'Sala de Servidores A',
-          val: 5500.00,
-          pdate: '2026-04-18',
-          userId: operatorId
-        },
-        {
-          code: 'ACT-0005',
-          name: 'Camioneta Eléctrica Distribución BYD',
-          desc: 'Vehículo para soporte e inspección técnica de antenas en campo',
-          cat: 'Vehículos',
-          status: 'En Mantenimiento',
-          loc: 'Garaje General de Operaciones',
-          val: 34500.00,
-          pdate: '2025-11-20',
-          userId: null
-        }
-      ];
+      console.log('🌱 [SIEMBRA] Sembrando un activo de prueba inicial...');
+      
+      await db.query(
+        `INSERT INTO activos (
+          codigo, serial, modelo, psl, tipo_recurso_id, marca_id, estado_id, 
+          empresa_id, area_id, asignado_a, estatus, valor, fecha_compra
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+        [
+          'ACT-0001', 'SN-123456', 'EliteDesk 800', 'PSL-999', resourceTypeId, 
+          brandId, conditionId, companyId, areaId, adminId, 'ACTIVO', 1500.00, '2026-01-15'
+        ]
+      );
 
-      for (const a of assetsToSeed) {
-        const insertResult = await db.query(
-          `INSERT INTO assets (code, name, description, category, status, location, value, purchase_date, assigned_to)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-           RETURNING id`,
-          [a.code, a.name, a.desc, a.cat, a.status, a.loc, a.val, a.pdate, a.userId]
-        );
-        
-        // Si el estado es Pendiente Aceptación, crear la bandeja de firmas del usuario asignado
-        if (a.status === 'Pendiente Aceptación' && a.userId) {
-          await db.query(
-            `INSERT INTO asset_acceptances (asset_id, user_id, status)
-             VALUES ($1, $2, 'PENDIENTE')`,
-            [insertResult.rows[0].id, a.userId]
-          );
-        }
-      }
       console.log('🌱 [SIEMBRA] Inicialización de base de datos finalizada.');
     }
   } catch (err) {

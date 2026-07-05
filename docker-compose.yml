@@ -15,8 +15,8 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-    expose:
-      - "5432"
+    ports:
+      - "5440:5432"
     volumes:
       - activos_pg_data:/var/lib/postgresql/data
       - ./app/db-init/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -27,6 +27,30 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  # ═══════════════════════════════════════════════════════════
+  # MySQL Legacy (Solo para migración de datos del SGCAF)
+  # Carga automáticamente el dump sgcaf.sql al iniciar
+  # ═══════════════════════════════════════════════════════════
+  mysql-legacy:
+    image: mysql:5.7
+    container_name: mysql-legacy
+    restart: "no"
+    environment:
+      MYSQL_ROOT_PASSWORD: legacy_root_2026
+      MYSQL_DATABASE: sgcaf
+    expose:
+      - "3306"
+    volumes:
+      - ./sgcaf.sql:/docker-entrypoint-initdb.d/sgcaf.sql
+    networks:
+      - microservices_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-plegacy_root_2026"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 60s
 
   # ═══════════════════════════════════════════════════════════
   # Backend API (Node.js + Express)
@@ -42,6 +66,11 @@ services:
       - .env
     environment:
       - API_URL=${API_URL}
+      - MYSQL_LEGACY_HOST=mysql-legacy
+      - MYSQL_LEGACY_PORT=3306
+      - MYSQL_LEGACY_USER=root
+      - MYSQL_LEGACY_PASSWORD=legacy_root_2026
+      - MYSQL_LEGACY_DATABASE=sgcaf
     expose:
       - "4002"
     networks:
@@ -66,4 +95,4 @@ volumes:
 
 networks:
   microservices_net:
-    external: true
+    driver: bridge
