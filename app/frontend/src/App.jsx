@@ -10,15 +10,19 @@ import AssetInventory from './pages/AssetInventory';
 import AssetMovements from './pages/AssetMovements';
 import AssetAcceptance from './pages/AssetAcceptance';
 import AdminUsers from './pages/AdminUsers';
+import AdminCatalogs from './pages/AdminCatalogs';
+import AssetBajas from './pages/AssetBajas';
+import NotFound from './pages/NotFound';
 
 // Componentes Globales
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
+import Footer from './components/Footer';
 
 // Configurar Axios por defecto para incluir cookies de sesión en peticiones cruzadas
 axios.defaults.withCredentials = true;
-// Base URL apuntando al API Gateway para enrutamiento correcto en producción
-axios.defaults.baseURL = '/api/activos';
+// Base URL vacía porque las llamadas ya incluyen el prefijo /api
+axios.defaults.baseURL = '';
 
 // Contexto Global de Autenticación y Notificaciones
 const AuthContext = createContext(null);
@@ -80,7 +84,7 @@ export default function App() {
       setUser(null);
       showToast('Sesión cerrada con éxito.', 'success');
       // Redirección e invalidación de caché
-      window.location.href = '/activos/login';
+      window.location.href = '/login';
     } catch (err) {
       showToast('Error al cerrar sesión.', 'error');
     }
@@ -97,7 +101,7 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{ user, loginUser, logoutUser, showToast, isSidebarOpen, toggleSidebar }}>
-      <Router basename="/activos">
+      <Router>
         <div className="app-container">
           {user && <Sidebar />}
           
@@ -138,8 +142,20 @@ export default function App() {
                 element={user && user.role === 'ADMIN' ? <AdminUsers /> : <Navigate to="/" replace />} 
               />
 
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route 
+                path="/admin/catalogs" 
+                element={user && user.role === 'ADMIN' ? <AdminCatalogs /> : <Navigate to="/" replace />} 
+              />
+
+              <Route 
+                path="/bajas" 
+                element={user && user.role === 'ADMIN' ? <AssetBajas /> : <Navigate to="/" replace />} 
+              />
+
+              <Route path="*" element={<NotFound />} />
             </Routes>
+            
+            {user && <Footer />}
           </div>
 
           {/* Banner Toast Flotante */}

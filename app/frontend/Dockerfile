@@ -21,7 +21,7 @@ RUN pnpm run build
 # ─── ETAPA 2: SERVIR ─────────────────────────────────────────
 FROM nginx:alpine
 
-# Copiar los archivos compilados al directorio de Nginx
+# Copiar los archivos compilados a la raíz de Nginx
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copiar configuración personalizada de Nginx (SPA fallback)

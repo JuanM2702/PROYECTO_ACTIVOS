@@ -1,122 +1,154 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, RefreshCw, Signature, Shield } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  Package, 
+  ArrowLeftRight, 
+  CheckSquare, 
+  Users, 
+  Grid, 
+  FileText, 
+  Settings, 
+  LogOut,
+  ArchiveX 
+} from 'lucide-react';
 import { useAuth } from '../App';
+import { ATLAS_LOGO } from '../assets/logo-base64';
 
 export default function Sidebar() {
-  const { user, isSidebarOpen } = useAuth();
+  const { user, isSidebarOpen, toggleSidebar, logoutUser } = useAuth();
+
+  const getInitials = (name) => {
+    if (!name) return 'WC';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  const handleNavClick = () => {
+    if (window.innerWidth <= 768 && isSidebarOpen) {
+      toggleSidebar();
+    }
+  };
 
   return (
-    <aside className={`sidebar-container ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-      {/* Logotipo y Branding Premium */}
-      <div className="sidebar-brand-wrapper">
-        <div className="sidebar-logo">
-          <Package size={22} color="var(--bg-primary)" />
+    <>
+      {/* Overlay oscuro para pantallas móviles */}
+      {isSidebarOpen && (
+        <div 
+          className="sidebar-backdrop"
+          onClick={toggleSidebar}
+        />
+      )}
+      <aside className={`sidebar-container ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+        {/* Logotipo y Branding Atlas */}
+        <div className="sidebar-brand-wrapper" style={{ justifyContent: 'center', padding: '10px 0' }}>
+          <img 
+            src={ATLAS_LOGO} 
+            alt="Atlas Gestión de Activos" 
+            style={{ width: '100%', maxWidth: '180px', height: 'auto', objectFit: 'contain' }} 
+          />
         </div>
-        <div>
-          <h1 className="sidebar-title">
-            Activos
-          </h1>
-          <span className="sidebar-subtitle">
-            Gana Gana
-          </span>
+
+        {/* Menú de Navegación */}
+        <nav className="sidebar-nav">
+          <NavLink 
+            to="/" 
+            onClick={handleNavClick}
+            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+          >
+            <LayoutDashboard size={19} />
+            <span>Dashboard</span>
+          </NavLink>
+
+          {user?.allowed_modules?.includes('inventory') && (
+            <NavLink 
+              to="/inventory" 
+              onClick={handleNavClick}
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            >
+              <Package size={19} />
+              <span>Inventario</span>
+            </NavLink>
+          )}
+
+          {user?.allowed_modules?.includes('movements') && (
+            <NavLink 
+              to="/movements" 
+              onClick={handleNavClick}
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            >
+              <ArrowLeftRight size={19} />
+              <span>Movimientos</span>
+            </NavLink>
+          )}
+
+          {user?.allowed_modules?.includes('acceptances') && (
+            <NavLink 
+              to="/acceptances" 
+              onClick={handleNavClick}
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            >
+              <CheckSquare size={19} />
+              <span>Aceptaciones</span>
+            </NavLink>
+          )}
+
+          {user?.role === 'ADMIN' && (
+            <NavLink 
+              to="/admin/users" 
+              onClick={handleNavClick}
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            >
+              <Users size={19} />
+              <span>Usuarios</span>
+            </NavLink>
+          )}
+
+          {user?.role === 'ADMIN' && (
+            <NavLink 
+              to="/bajas" 
+              onClick={handleNavClick}
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            >
+              <ArchiveX size={19} />
+              <span>Bajas de Activos</span>
+            </NavLink>
+          )}
+
+          {user?.role === 'ADMIN' && (
+            <NavLink 
+              to="/admin/catalogs" 
+              onClick={handleNavClick}
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            >
+              <Grid size={19} />
+              <span>Personalización</span>
+            </NavLink>
+          )}
+        </nav>
+
+        {/* Tarjeta de Perfil de Usuario en el Footer del Sidebar */}
+        <div className="sidebar-user-profile">
+          <div className="user-avatar-circle">
+            {getInitials(user?.fullName)}
+          </div>
+          <div className="user-profile-details">
+            <span className="user-profile-name" title={user?.fullName}>{user?.fullName || 'William Cruz'}</span>
+            <span className={`user-profile-role-badge role-${(user?.role || 'VIEWER').toLowerCase()}`}>
+              {user?.role === 'ADMIN' ? 'Administrador' : user?.role === 'OPERATOR' ? 'Operador' : 'Consultor'}
+            </span>
+          </div>
+          <button 
+            onClick={logoutUser} 
+            className="sidebar-logout-btn" 
+            title="Cerrar sesión"
+          >
+            <LogOut size={16} />
+          </button>
         </div>
-      </div>
-
-      {/* Menú de Navegación */}
-      <nav className="sidebar-nav">
-        <NavLink 
-          to="/" 
-          className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-        >
-          <LayoutDashboard size={18} />
-          <span>Dashboard</span>
-        </NavLink>
-
-        {user?.allowed_modules?.includes('inventory') && (
-          <NavLink 
-            to="/inventory" 
-            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-          >
-            <Package size={18} />
-            <span>Inventario</span>
-          </NavLink>
-        )}
-
-        {user?.allowed_modules?.includes('movements') && (
-          <NavLink 
-            to="/movements" 
-            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-          >
-            <RefreshCw size={18} />
-            <span>Movimientos</span>
-          </NavLink>
-        )}
-
-        {user?.allowed_modules?.includes('acceptances') && (
-          <NavLink 
-            to="/acceptances" 
-            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-          >
-            <Signature size={18} />
-            <span>Aceptaciones</span>
-          </NavLink>
-        )}
-
-        {user?.role === 'ADMIN' && (
-          <NavLink 
-            to="/admin/users" 
-            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-          >
-            <Shield size={18} />
-            <span>Administración</span>
-          </NavLink>
-        )}
-      </nav>
-
-      {/* Pie del Sidebar con el Rol Activo */}
-      <div className="sidebar-footer">
-        <span className="sidebar-footer-label">
-          Usuario Activo:
-        </span>
-        <strong className="sidebar-footer-name">
-          {user?.fullName}
-        </strong>
-        <span className={`sidebar-footer-role ${
-          user?.role === 'ADMIN' ? 'role-admin' : user?.role === 'OPERATOR' ? 'role-operator' : 'role-consultant'
-        }`}>
-          ● {user?.role === 'ADMIN' ? 'Administrador' : user?.role === 'OPERATOR' ? 'Operador' : 'Consultor'}
-        </span>
-      </div>
-
-      {/* Reglas de Estilo Dinámicas en el componente */}
-      <style>{`
-        .sidebar-link {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          padding: 0.85rem 1rem;
-          border-radius: 10px;
-          color: var(--text-muted);
-          text-decoration: none;
-          font-family: var(--font-display);
-          font-size: 0.95rem;
-          font-weight: 500;
-          transition: var(--transition-smooth);
-          border: 1px solid transparent;
-        }
-        .sidebar-link:hover {
-          color: var(--text-main);
-          background: rgba(0, 130, 63, 0.05);
-          border-color: rgba(0, 130, 63, 0.08);
-        }
-        .sidebar-link.active {
-          color: #ffffff;
-          background: var(--gradient-brand);
-          box-shadow: 0 4px 12px rgba(0, 130, 63, 0.25);
-          font-weight: 600;
-        }
-      `}</style>
-    </aside>
+      </aside>
+    </>
   );
 }
+

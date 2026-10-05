@@ -1,12 +1,15 @@
 const express = require('express');
-const router = Router = express.Router();
+const router = express.Router();
 const movementController = require('../controllers/movementController');
-const { authenticateToken, requireRole } = require('../config/auth');
+const { authenticateToken } = require('../config/auth');
 
-// Consultar todo el histórico de traslados (Disponible para todos los usuarios autenticados)
+// Consultar historial de traslados (todos los usuarios autenticados, con RLS en el controller)
 router.get('/', authenticateToken, movementController.getMovements);
 
-// Registrar un nuevo traslado físico/administrativo (Solo ADMIN y OPERATOR)
-router.post('/', authenticateToken, requireRole(['ADMIN', 'OPERATOR']), movementController.createMovement);
+// Registrar un traslado (todos los usuarios autenticados pueden crear movimientos de sus activos)
+router.post('/', authenticateToken, movementController.createMovement);
+
+// Previsualizar el acta de traslado usando la plantilla PDF oficial en MinIO
+router.post('/preview', authenticateToken, movementController.previewPDF);
 
 module.exports = router;

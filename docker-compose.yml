@@ -29,30 +29,6 @@ services:
       retries: 10
 
   # ═══════════════════════════════════════════════════════════
-  # MySQL Legacy (Solo para migración de datos del SGCAF)
-  # Carga automáticamente el dump sgcaf.sql al iniciar
-  # ═══════════════════════════════════════════════════════════
-  mysql-legacy:
-    image: mysql:5.7
-    container_name: mysql-legacy
-    restart: "no"
-    environment:
-      MYSQL_ROOT_PASSWORD: legacy_root_2026
-      MYSQL_DATABASE: sgcaf
-    expose:
-      - "3306"
-    volumes:
-      - ./sgcaf.sql:/docker-entrypoint-initdb.d/sgcaf.sql
-    networks:
-      - microservices_net
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-plegacy_root_2026"]
-      interval: 10s
-      timeout: 10s
-      retries: 30
-      start_period: 60s
-
-  # ═══════════════════════════════════════════════════════════
   # Backend API (Node.js + Express)
   # ═══════════════════════════════════════════════════════════
   servicio-activos:
@@ -66,13 +42,12 @@ services:
       - .env
     environment:
       - API_URL=${API_URL}
-      - MYSQL_LEGACY_HOST=mysql-legacy
-      - MYSQL_LEGACY_PORT=3306
-      - MYSQL_LEGACY_USER=root
-      - MYSQL_LEGACY_PASSWORD=legacy_root_2026
-      - MYSQL_LEGACY_DATABASE=sgcaf
     expose:
       - "4002"
+    volumes:
+      - ./app/backend/src:/app/src
+      - /home/id_ed25519:/app/ssh/id_ed25519:ro
+      - /home:/home:ro
     networks:
       - microservices_net
 

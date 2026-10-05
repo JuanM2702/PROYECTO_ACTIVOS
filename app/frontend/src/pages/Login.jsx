@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Package, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../App';
+import { ATLAS_LOGO } from '../assets/logo-base64';
 
 export default function Login() {
   const { loginUser } = useAuth();
@@ -26,12 +27,13 @@ export default function Login() {
   return (
     <div className="login-page">
       <div className="login-card">
-        {/* Encabezado e Iconografía */}
-        <div className="login-header">
-          <div className="brand-icon-wrapper">
-            <Package size={28} color="#ffffff" />
-          </div>
-          <h1 className="brand-name">Activos</h1>
+        {/* Encabezado con Logo Oficial de Atlas */}
+        <div className="login-header" style={{ marginBottom: '1.75rem', textAlign: 'center' }}>
+          <img 
+            src={ATLAS_LOGO} 
+            alt="Atlas Gestión de Activos" 
+            style={{ width: '100%', maxWidth: '240px', height: 'auto', objectFit: 'contain', margin: '0 auto 0.5rem auto', display: 'block' }} 
+          />
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
             Sistema Integrado de Control de Activos IoT
           </p>

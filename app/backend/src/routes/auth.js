@@ -19,7 +19,9 @@ router.get('/users', authenticateToken, authController.getUsers);
 // Rutas de Administración de Usuarios
 // ==========================================
 router.get('/admin/users', authenticateToken, requireRole(['ADMIN']), authController.getAllUsersAdmin);
+router.get('/admin/central-user/:cedula', authenticateToken, requireRole(['ADMIN']), authController.getCentralUser);
 router.post('/admin/users', authenticateToken, requireRole(['ADMIN']), authController.createUser);
+router.put('/admin/users/:id', authenticateToken, requireRole(['ADMIN']), authController.updateUser);
 router.put('/admin/users/:id/status', authenticateToken, requireRole(['ADMIN']), authController.updateUserStatus);
 router.put('/admin/users/:id/modules', authenticateToken, requireRole(['ADMIN']), authController.updateUserModules);
 

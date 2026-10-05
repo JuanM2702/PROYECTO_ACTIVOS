@@ -1,44 +1,63 @@
 /* ============================================================================
    SISTEMA DE DISEÑO: ACTIVOS PLATFORM
-   Aesthetic Vanilla CSS - Dark Mode Premium
+   Corporate Clean Design - Light Mode
    ============================================================================ */
 
 :root {
-  /* Paleta de Colores (Gana Gana Theme - Warm Light Mode) */
-  --bg-primary: #f8fafc;     /* Gris muy claro/Hueso */
-  --bg-secondary: #ffffff;   /* Blanco puro para tarjetas */
-  --bg-tertiary: #f1f5f9;    /* Gris claro para hovers */
-  --accent-primary: #00823F;  /* Verde Gana Gana */
-  --accent-primary-glow: rgba(0, 130, 63, 0.15);
-  --accent-secondary: #FFDF00; /* Amarillo Gana Gana */
-  --accent-success: #10b981;   /* Verde esmeralda (estados) */
-  --accent-warning: #f59e0b;   /* Naranja ámbar */
-  --accent-danger: #ef4444;    /* Rojo brillante */
-  
-  /* Gradientes Dinámicos */
-  --gradient-brand: linear-gradient(135deg, #00823F 0%, #00a651 100%);
-  --gradient-dark: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+  /* Paleta Corporativa ATLAS */
+  --bg-primary: #F4F6F9;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #EEF2F7;
+  --bg-hover: #F8FAFC;
 
-  /* Bordes y Sombras Glassmorphic */
-  --border-glass: rgba(0, 0, 0, 0.05);
-  --border-glass-focus: rgba(0, 130, 63, 0.4);
-  --shadow-premium: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+  --sidebar-bg: #07153B;
+  --sidebar-active-bg: #1352E6;
+  --sidebar-text: #94A3B8;
+  --sidebar-text-active: #FFFFFF;
+
+  --accent-primary: #1352E6;
+  --accent-primary-light: #EBF3FF;
+  --accent-primary-hover: #0E42BD;
+  --accent-secondary: #FF8C00;
+  
+  --accent-success: #10B981;
+  --accent-success-light: #EAF8F0;
+  --accent-warning: #F59E0B;
+  --accent-warning-light: #FFF5E9;
+  --accent-danger: #EF4444;
+  --accent-danger-light: #FDEEEE;
+  --accent-purple: #8B5CF6;
+  --accent-purple-light: #F3E8FF;
+
+  /* Bordes y Sombras */
+  --border-default: #E2E8F0;
+  --border-focus: var(--accent-primary);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.08);
 
   /* Texto */
-  --text-main: #1e293b;      /* Pizarra oscuro */
-  --text-muted: #64748b;     /* Pizarra medio */
-  --text-dark: #334155;      /* Pizarra */
-  
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #64748B;
+  --text-muted: #94A3B8;
+
   /* Fuentes */
-  --font-display: 'Outfit', 'Inter', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+  --font-display: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Transiciones */
-  --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s ease;
+  --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Radios */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
 }
 
-/* Reset y Estilos Base */
+/* Reset */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -47,8 +66,10 @@
 
 body {
   background-color: var(--bg-primary);
-  color: var(--text-main);
+  color: var(--text-primary);
   font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -57,37 +78,37 @@ body {
 h1, h2, h3, h4, .brand-title {
   font-family: var(--font-display);
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
-/* Scrollbar Personalizado */
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-tertiary);
-  border-radius: 4px;
+  background: var(--border-default);
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-primary);
+  background: var(--text-tertiary);
 }
 
-/* Estructura del Layout Principal */
+/* Layout Principal */
 .app-container {
   display: flex;
   min-height: 100vh;
-  background: var(--gradient-dark);
+  background: var(--bg-primary);
 }
 
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 2rem;
+  padding: 24px 32px;
   min-height: 100vh;
   transition: var(--transition-smooth);
 }
@@ -95,139 +116,154 @@ h1, h2, h3, h4, .brand-title {
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0;
-    padding: 1rem;
+    padding: 16px;
   }
 }
 
-/* ─── CONTENEDOR GLASSMORPHIC (TARJETAS) ─────────────────────────────────── */
+/* ─── TARJETAS ────────────────────────────────────────────────────────────── */
 .glass-card {
-  background: var(--gradient-glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-glass);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: var(--shadow-premium);
-  transition: var(--transition-smooth);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
 }
 
 .glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+  box-shadow: var(--shadow-md);
 }
 
-/* ─── COMPONENTE: BOTONES PREMIUM ───────────────────────────────────────── */
+/* ─── BOTONES ─────────────────────────────────────────────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 12px;
-  font-family: var(--font-display);
-  font-size: 0.95rem;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: var(--transition-smooth);
+  transition: var(--transition-fast);
   border: 1px solid transparent;
   outline: none;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn:active {
+  transform: scale(0.98);
 }
 
 .btn-primary {
-  background: var(--gradient-brand);
-  color: var(--bg-primary);
-  box-shadow: 0 2px 8px rgba(200, 111, 75, 0.25);
-  font-weight: 600;
+  background: var(--accent-primary);
+  color: #ffffff;
+  border-color: var(--accent-primary);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(200, 111, 75, 0.35);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
+  background: var(--accent-primary-hover);
+  border-color: var(--accent-primary-hover);
 }
 
 .btn-secondary {
-  background: var(--bg-tertiary);
-  color: var(--text-main);
-  border: 1px solid var(--border-glass);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: var(--bg-tertiary);
+  border-color: #d0d4db;
 }
 
 .btn-success {
   background: var(--accent-success);
-  color: var(--bg-primary);
-  box-shadow: 0 2px 8px rgba(126, 161, 114, 0.25);
-  font-weight: 600;
+  color: #ffffff;
+  border-color: var(--accent-success);
 }
 
 .btn-success:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(126, 161, 114, 0.35);
+  background: #15803d;
 }
 
 .btn-danger {
   background: var(--accent-danger);
-  color: white;
-  box-shadow: 0 2px 8px rgba(176, 76, 76, 0.25);
-  font-weight: 600;
+  color: #ffffff;
+  border-color: var(--accent-danger);
 }
 
 .btn-danger:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(176, 76, 76, 0.35);
+  background: #b91c1c;
 }
 
-/* ─── ENTRADAS Y FORMULARIOS ────────────────────────────────────────────── */
+.btn-outline-danger {
+  background: transparent;
+  color: var(--accent-danger);
+  border: 1px solid var(--accent-danger);
+}
+
+.btn-outline-danger:hover {
+  background: var(--accent-danger-light);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  padding: 6px 10px;
+}
+
+.btn-ghost:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* ─── INPUTS ──────────────────────────────────────────────────────────────── */
 .form-group {
-  margin-bottom: 1.25rem;
+  margin-bottom: 16px;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 5px;
 }
 
 .form-label {
-  font-size: 0.85rem;
+  font-size: 12px;
   font-weight: 500;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 .input-field {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
   background: var(--bg-secondary);
-  border: 1px solid var(--border-glass);
-  color: var(--text-main);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: 13px;
   outline: none;
-  transition: var(--transition-smooth);
+  transition: var(--transition-fast);
 }
 
 .input-field:focus {
   border-color: var(--accent-primary);
-  background: var(--bg-tertiary);
-  box-shadow: 0 0 0 3px var(--accent-primary-glow);
+  box-shadow: 0 0 0 3px rgba(0, 130, 63, 0.1);
 }
 
 .input-field::placeholder {
-  color: var(--text-dark);
+  color: var(--text-tertiary);
 }
 
-/* ─── TABLAS PREMIUM E INVENTARIOS ──────────────────────────────────────── */
+/* ─── TABLAS ──────────────────────────────────────────────────────────────── */
 .table-container {
   overflow-x: auto;
-  border-radius: 12px;
-  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
   background: var(--bg-secondary);
 }
 
@@ -235,126 +271,121 @@ h1, h2, h3, h4, .brand-title {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 0.95rem;
+  font-size: 13px;
 }
 
 .premium-table th {
   background: var(--bg-tertiary);
-  padding: 1rem;
-  font-family: var(--font-display);
-  font-weight: 500;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-glass);
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-default);
   text-transform: uppercase;
-  font-size: 0.8rem;
-  letter-spacing: 0.05em;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .premium-table td {
-  padding: 1rem;
-  border-bottom: 1px solid var(--border-glass);
-  color: var(--text-main);
+  padding: 10px 14px;
+  border-bottom: 1px solid #f0f1f3;
+  color: var(--text-primary);
+  vertical-align: middle;
 }
 
 .premium-table tr:last-child td {
   border-bottom: none;
 }
 
-.premium-table tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
+.premium-table tbody tr:hover td {
+  background: var(--bg-hover);
 }
 
-/* ─── BADGES / ETIQUETAS DE ESTADO ──────────────────────────────────────── */
+/* ─── BADGES ──────────────────────────────────────────────────────────────── */
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
 }
 
 .badge-active {
-  background: rgba(126, 161, 114, 0.15);
+  background: var(--accent-success-light);
   color: var(--accent-success);
-  border: 1px solid rgba(126, 161, 114, 0.3);
 }
 
 .badge-pending {
-  background: rgba(204, 160, 90, 0.15);
+  background: var(--accent-warning-light);
   color: var(--accent-warning);
-  border: 1px solid rgba(204, 160, 90, 0.3);
 }
 
 .badge-maintenance {
-  background: rgba(200, 111, 75, 0.15);
-  color: var(--accent-primary);
-  border: 1px solid rgba(200, 111, 75, 0.3);
+  background: var(--accent-info-light);
+  color: var(--accent-info);
 }
 
 .badge-rejected {
-  background: rgba(176, 76, 76, 0.15);
+  background: var(--accent-danger-light);
   color: var(--accent-danger);
-  border: 1px solid rgba(176, 76, 76, 0.3);
 }
 
-/* ─── INTERFAZ DE LOGIN ─────────────────────────────────────────────────── */
+/* ─── LOGIN ───────────────────────────────────────────────────────────────── */
 .login-page {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
   width: 100vw;
-  background: radial-gradient(circle at 50% 50%, var(--bg-tertiary) 0%, var(--bg-primary) 100%);
-  padding: 1.5rem;
+  background: var(--bg-primary);
+  padding: 24px;
 }
 
 .login-card {
   width: 100%;
-  max-width: 440px;
-  border-radius: 24px;
-  padding: 2.5rem;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid var(--border-glass);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(20px);
+  max-width: 400px;
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-lg);
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 28px;
 }
 
 .brand-icon-wrapper {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
-  background: var(--gradient-brand);
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  background: var(--accent-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 1rem auto;
-  box-shadow: 0 8px 24px rgba(200, 111, 75, 0.25);
+  margin: 0 auto 12px auto;
 }
 
 .brand-name {
-  font-size: 1.75rem;
-  background: var(--gradient-brand);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
 }
 
-/* ─── DASHBOARD METRICAS Y KPIS ─────────────────────────────────────────── */
+/* ─── DASHBOARD ───────────────────────────────────────────────────────────── */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .kpi-card {
@@ -364,63 +395,63 @@ h1, h2, h3, h4, .brand-title {
 }
 
 .kpi-details h3 {
-  font-size: 0.8rem;
-  color: var(--text-muted);
+  font-size: 11px;
+  color: var(--text-tertiary);
   text-transform: uppercase;
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+  letter-spacing: 0.04em;
+  font-weight: 500;
 }
 
 .kpi-value {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
   font-family: var(--font-display);
-  color: var(--text-main);
+  color: var(--text-primary);
 }
 
 .kpi-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-glass);
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: var(--accent-primary-light);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--accent-primary);
 }
 
-/* ─── MODALES SEGUROS (FRAMEWORK SYSTEM) ─────────────────────────────────── */
+/* ─── MODALES ─────────────────────────────────────────────────────────────── */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 1rem;
+  padding: 24px;
 }
 
 .modal-content {
   width: 100%;
-  max-width: 580px;
+  max-width: 560px;
   background: var(--bg-secondary);
-  border: 1px solid var(--border-glass);
-  border-radius: 20px;
-  box-shadow: var(--shadow-premium);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
-  animation: modalFadeIn 0.3s ease;
+  animation: modalSlideIn 0.2s ease;
 }
 
-@keyframes modalFadeIn {
+@keyframes modalSlideIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -429,35 +460,35 @@ h1, h2, h3, h4, .brand-title {
 }
 
 .modal-header {
-  padding: 1.25rem 1.5rem;
+  padding: 16px 20px;
   background: var(--bg-tertiary);
-  border-bottom: 1px solid var(--border-glass);
+  border-bottom: 1px solid var(--border-default);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .modal-body {
-  padding: 1.5rem;
-  max-height: 70vh;
+  padding: 20px;
+  max-height: 75vh;
   overflow-y: auto;
 }
 
 .modal-footer {
-  padding: 1.25rem 1.5rem;
+  padding: 14px 20px;
   background: var(--bg-tertiary);
-  border-top: 1px solid var(--border-glass);
+  border-top: 1px solid var(--border-default);
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
+  gap: 8px;
 }
 
-/* ─── DIBUJADO DE GRÁFICOS PERSONALIZADOS (SVG) ─────────────────────────── */
+/* ─── GRÁFICOS ────────────────────────────────────────────────────────────── */
 .charts-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 @media (max-width: 992px) {
@@ -469,31 +500,33 @@ h1, h2, h3, h4, .brand-title {
 .chart-wrapper {
   display: flex;
   flex-direction: column;
-  height: 320px;
+  height: 280px;
   justify-content: center;
   align-items: center;
   position: relative;
 }
 
-/* ─── ALERTA NOTIFICACIONES (TOAST) ────────────────────────────────────── */
+/* ─── TOAST ───────────────────────────────────────────────────────────────── */
 .toast {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
   color: white;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  box-shadow: var(--shadow-premium);
+  gap: 8px;
+  box-shadow: var(--shadow-lg);
   z-index: 1100;
-  animation: toastSlideIn 0.3s ease forwards;
+  font-size: 13px;
+  font-weight: 500;
+  animation: toastSlideIn 0.25s ease forwards;
 }
 
 @keyframes toastSlideIn {
   from {
-    transform: translateY(50px);
+    transform: translateY(30px);
     opacity: 0;
   }
   to {
@@ -508,4 +541,58 @@ h1, h2, h3, h4, .brand-title {
 
 .toast-error {
   background: var(--accent-danger);
+}
+
+/* ─── CHECKBOX PERSONALIZADO ──────────────────────────────────────────────── */
+.custom-checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid var(--border-default);
+  background: var(--bg-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.custom-checkbox:hover {
+  border-color: var(--accent-primary);
+}
+
+.custom-checkbox.checked {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+/* ─── BULK ACTION BAR ─────────────────────────────────────────────────────── */
+.bulk-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--accent-primary-light);
+  border: 1px solid rgba(0, 130, 63, 0.2);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  font-size: 13px;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bulk-action-bar .bulk-count {
+  font-weight: 600;
+  color: var(--accent-primary);
+}
+
+.bulk-action-bar .bulk-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
 }
